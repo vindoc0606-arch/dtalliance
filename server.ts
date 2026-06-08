@@ -10,9 +10,14 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import { INITIAL_COLLEGES, INITIAL_WEEKLY_NOTES, INITIAL_VISIT_LOGS } from './src/data';
+import { fileURLToPath } from 'url';
 
 // Load environment variables
 dotenv.config();
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let aiClient: GoogleGenAI | null = null;
 
@@ -34,7 +39,7 @@ function getGeminiClient(): GoogleGenAI {
   return aiClient;
 }
 
-const DB_DIR = path.join(process.cwd(), 'db-store');
+const DB_DIR = path.join(__dirname, 'db-store');
 const DB_FILE = path.join(DB_DIR, 'db.json');
 
 // Ensure database directory and file exist
@@ -581,7 +586,7 @@ Explain how to validate fields, protect identity spoofing, and provide the exact
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath = path.join(__dirname, 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
@@ -594,3 +599,4 @@ Explain how to validate fields, protect identity spoofing, and provide the exact
 }
 
 startServer();
+
