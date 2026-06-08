@@ -1,0 +1,6 @@
+{
+  "name": "DocTutorials Alliance",
+  "description": "Premium administration console for tracking revenue, active colleges, prospective pipelines, faculty demo statuses, LMS integration, smart library analytics, and meeting notes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
