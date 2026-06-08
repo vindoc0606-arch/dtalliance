@@ -121,6 +121,11 @@ async function startServer() {
     // JSON body parsing
     app.use(express.json({ limit: '10mb' }));
 
+    // Health check endpoint
+    app.get('/health', (req, res) => {
+      res.json({ status: 'ok' });
+    });
+
     // Prevent caching of API requests
     app.use('/api', (req, res, next) => {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -584,20 +589,25 @@ Explain how to validate fields, protect identity spoofing, and provide the exact
       }
     });
 
-    // Serve static assets or mount Vite dev server
-    if (process.env.NODE_ENV !== 'production') {
-      const vite = await createViteServer({
-        server: { middlewareMode: true },
-        appType: 'spa',
-      });
-      app.use(vite.middlewares);
-    } else {
-      const distPath = path.join(APP_DIR, 'dist');
-      app.use(express.static(distPath));
-      app.get('*', (req, res) => {
-        res.sendFile(path.join(distPath, 'index.html'));
-      });
-    }
+    // Serve static assets
+    const distPath = path.join(APP_DIR, 'dist');
+    app.use(express.static(distPath));
+
+    // SPA fallback - serve index.html for all other routes
+    app.get('*', (req, res) => {
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).json({ error: 'Not found' });
+      }
+    });
+
+    // Global error handler
+    app.use((err: any, req: any, res: any, next: any) => {
+      console.error('Unhandled error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    });
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Firebase Studio full-stack server running on http://localhost:${PORT}`);
